@@ -2,21 +2,23 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Expense extends Model
+class ExpenseSplit extends Model
 {
-    use  HasFactory;
-
     protected $fillable = [
+        'expense_id',
         'group_id',
         'paid_user_id',
-        'description',
+        'receive_user_id',
         'amount',
-        'split_type',
     ];
+
+    public function expense(): BelongsTo
+    {
+        return $this->belongsTo(Expense::class);
+    }
 
     public function group(): BelongsTo
     {
@@ -26,5 +28,10 @@ class Expense extends Model
     public function paidUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'paid_user_id');
+    }
+
+    public function receiveUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'receive_user_id');
     }
 }

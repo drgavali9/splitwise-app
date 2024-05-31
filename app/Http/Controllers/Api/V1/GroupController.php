@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\GroupRequest;
+use App\Http\Requests\Api\V1\GroupRequest;
 use App\Http\Resources\Api\V1\GroupResource;
 use App\Models\Group;
 use App\Models\User;

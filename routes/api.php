@@ -19,6 +19,7 @@ Route::group(['prefix' => 'v1', 'name' => 'v1'], function () {
     Route::group(['middleware' => 'auth:sanctum'], function () {
         Route::get('user', [UserController::class, 'user']);
         Route::get('users', [UserController::class, 'index']);
+        Route::get('groups/{group}/add-user/{user}', [GroupController::class, 'addUser']);
         Route::apiResource('groups', GroupController::class);
     });
 });

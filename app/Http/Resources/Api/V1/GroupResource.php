@@ -13,10 +13,13 @@ class GroupResource extends JsonResource
         return [
             'id'         => $this->id,
             'name'       => $this->name,
+            'owner_id' => $this->owner_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            //            'users_count' => $this->users_count,
 
-            'owner_id' => $this->owner_id,
+            'owner' => new UserResource($this->whenLoaded('owner')),
+            'users' => UserResource::collection($this->whenLoaded('users')),
         ];
     }
 }

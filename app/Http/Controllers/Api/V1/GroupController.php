@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\GroupRequest;
 use App\Http\Resources\Api\V1\GroupResource;
 use App\Models\Group;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\ValidationException;
 
 class GroupController extends Controller
 {
@@ -28,14 +30,14 @@ class GroupController extends Controller
     {
         //        $this->authorize('create', Group::class);
 
-        return new GroupResource($request->persist($request->validated()));
+        return GroupResource::make($request->persist($request->validated()));
     }
 
     public function show(Group $group)
     {
         //        $this->authorize('view', $group);
 
-        return new GroupResource($group);
+        return GroupResource::make($group);
     }
 
     public function update(GroupRequest $request, Group $group)
@@ -44,7 +46,7 @@ class GroupController extends Controller
 
         $group->update($request->validated());
 
-        return new GroupResource($group);
+        return GroupResource::make($group);
     }
 
     public function destroy(Group $group)
@@ -54,5 +56,16 @@ class GroupController extends Controller
         $group->delete();
 
         return response()->json(['message' => 'Group delete successfully']);
+    }
+
+    public function addUser(Group $group, User $user)
+    {
+        if ($group->owner_id != auth()->id()) {
+            ValidationException::withMessages(['message' => 'Unauthorized access...']);
+        }
+
+        $group->users()->attach($user->id);
+
+        return GroupResource::make($group->loadMissing('users'));
     }
 }

@@ -2,20 +2,27 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Group;
 use Illuminate\Foundation\Http\FormRequest;
 
 class GroupRequest extends FormRequest
 {
-    public function rules()
+    public function rules(): array
     {
         return [
-            'name'     => ['required'],
-            'owner_id' => ['required', 'exists:users'],
+            'name' => ['required'],
         ];
     }
 
-    public function authorize()
+    public function authorize(): true
     {
         return true;
+    }
+
+    public function persist(array $validateData): Group
+    {
+        $validateData['owner_id'] = auth()->id();
+
+        return Group::create($validateData);
     }
 }

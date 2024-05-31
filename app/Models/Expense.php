@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Expense extends Model
 {
-    use  HasFactory;
+    use HasFactory;
 
     protected $fillable = [
         'group_id',
@@ -18,6 +18,24 @@ class Expense extends Model
         'amount',
         'split_type',
     ];
+
+    protected static function booted()
+    {
+        static::created(function (self $expense) {
+            self::addExpenses($expense);
+        });
+
+        static::updating(function (self $expense) {
+            if ($expense->isDirty('paid_user_id') || $expense->isDirty('amount') || $expense->isDirty('split_type')) {
+                $expense->expenseSplits()->delete();
+                self::addExpenses($expense);
+            }
+        });
+
+        static::deleting(function (self $expense) {
+            $expense->expenseSplits()->delete();
+        });
+    }
 
     public function group(): BelongsTo
     {
@@ -32,5 +50,31 @@ class Expense extends Model
     public function expenseSplits(): HasMany
     {
         return $this->hasMany(ExpenseSplit::class, 'expense_id');
+    }
+
+    public static function addExpenses(Expense $expense): void
+    {
+        $users = $expense->group->users;
+
+        $splitExpenses = [];
+
+        $now = now();
+
+        if ($expense->split_type == 1) {
+            $amount = round($expense->amount / count($users), 2);
+            foreach ($users as $user) {
+                $splitExpenses[] = [
+                    'expense_id'      => $expense->id,
+                    'group_id'        => $expense->group_id,
+                    'paid_user_id'    => $expense->paid_user_id,
+                    'receive_user_id' => $user->id,
+                    'amount'          => $amount,
+                    'created_at'      => $now,
+                    'updated_at'      => $now,
+                ];
+            }
+        }
+
+        $expense->expenseSplits()->insert($splitExpenses);
     }
 }

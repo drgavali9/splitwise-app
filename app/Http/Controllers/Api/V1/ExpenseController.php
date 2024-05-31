@@ -32,9 +32,9 @@ class ExpenseController extends Controller
 
         $group = Group::find($request->group_id);
 
-        $expenses = $group->expenses()->create($request->validated());
+        $expense = $group->expenses()->create($request->validated());
 
-        return ExpenseResource::make($expenses);
+        return ExpenseResource::make($expense->loadMissing(['expenseSplits']));
     }
 
     public function show(Expense $expense)

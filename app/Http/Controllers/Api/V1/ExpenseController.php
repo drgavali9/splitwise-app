@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ExpenseRequest;
-use App\Http\Resources\ExpenseResource;
+use App\Http\Resources\Api\V1\ExpenseResource;
 use App\Models\Expense;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 

@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Auth\AuthenticatedApiController;
 use App\Http\Controllers\Api\V1\GroupController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1', 'name' => 'v1'], function () {
@@ -17,9 +17,8 @@ Route::group(['prefix' => 'v1', 'name' => 'v1'], function () {
     });
 
     Route::group(['middleware' => 'auth:sanctum'], function () {
-        Route::get('/user', function (Request $request) {
-            return $request->user();
-        });
+        Route::get('user', [UserController::class, 'user']);
+        Route::get('users', [UserController::class, 'index']);
         Route::apiResource('groups', GroupController::class);
     });
 });

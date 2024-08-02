@@ -11,7 +11,9 @@ class getGroupFinalAmount
     use Makeable;
 
     public array $finalTransactions;
+
     public int $userId;
+
     public int $groupId;
 
     public function __construct(int $userId, int $groupId)
@@ -40,9 +42,9 @@ class getGroupFinalAmount
                 [$groupId, $paidUserId, $receivedUserId] = explode('-', $transaction->party_unique_id);
 
                 return [
-                    'paid_by'     => $paidUserId,
+                    'paid_by' => $paidUserId,
                     'received_by' => $receivedUserId,
-                    'amount'      => $transaction->total_amount,
+                    'amount'  => $transaction->total_amount,
                 ];
             })
             ->toArray();
@@ -55,13 +57,15 @@ class getGroupFinalAmount
         foreach ($transactions as $transaction) {
             $paidBy = $transaction['paid_by'];
             $receivedBy = $transaction['received_by'];
-            $amount = $transaction['amount'];
+            $amount = round($transaction['amount'], 2);
 
             $balances[$paidBy] = ($balances[$paidBy] ?? 0) - $amount;
             $balances[$receivedBy] = ($balances[$receivedBy] ?? 0) + $amount;
         }
 
-        return array_filter($balances);
+        return array_map(function ($number) {
+            return round($number, 2);
+        }, array_filter($balances));
     }
 
     protected function combineDebts(array $balances): array
@@ -72,16 +76,16 @@ class getGroupFinalAmount
             $maxCreditor = array_keys($balances, max($balances))[0];
             $maxDebtor = array_keys($balances, min($balances))[0];
 
-            $amount = min($balances[$maxCreditor], -$balances[$maxDebtor]);
+            $amount = round(min($balances[$maxCreditor], -$balances[$maxDebtor]), 2);
 
             $finalTransactions[] = [
-                'paid_by'     => $maxDebtor,
+                'paid_by' => $maxDebtor,
                 'received_by' => $maxCreditor,
-                'amount'      => $amount,
+                'amount'  => $amount,
             ];
 
-            $balances[$maxCreditor] -= $amount;
-            $balances[$maxDebtor] += $amount;
+            $balances[$maxCreditor] = round($balances[$maxCreditor] - $amount, 2);
+            $balances[$maxDebtor] = round($balances[$maxDebtor] + $amount, 2);
 
             if ($balances[$maxCreditor] == 0) {
                 unset($balances[$maxCreditor]);

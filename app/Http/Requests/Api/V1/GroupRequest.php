@@ -23,6 +23,9 @@ class GroupRequest extends FormRequest
     {
         $validateData['owner_id'] = auth()->id();
 
-        return Group::create($validateData);
+        $group = Group::create($validateData);
+        $group->users()->attach(auth()->id());
+
+        return $group;
     }
 }

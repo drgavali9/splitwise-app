@@ -52,7 +52,7 @@ class Expense extends Model
         return $this->hasMany(ExpenseSplit::class, 'expense_id');
     }
 
-    public static function addExpenses(Expense $expense): void
+    public static function addExpenses(Expense $expense, array $splitData = []): void
     {
         $users = $expense->group->users;
 
@@ -64,11 +64,23 @@ class Expense extends Model
             $amount = round($expense->amount / count($users), 2);
             foreach ($users as $user) {
                 $splitExpenses[] = [
+                    'expense_id'   => $expense->id,
+                    'group_id'     => $expense->group_id,
+                    'paid_user_id' => $expense->paid_user_id,
+                    'receive_user_id' => $user->id,
+                    'amount'       => $amount,
+                    'created_at'   => $now,
+                    'updated_at'   => $now,
+                ];
+            }
+        } elseif (! empty($splitData) && $expense->split_type == 2) {
+            foreach ($splitData as $split) {
+                $splitExpenses[] = [
                     'expense_id'      => $expense->id,
                     'group_id'        => $expense->group_id,
                     'paid_user_id'    => $expense->paid_user_id,
-                    'receive_user_id' => $user->id,
-                    'amount'          => $amount,
+                    'receive_user_id' => $split['user_id'],
+                    'amount'          => round($split['amount'], 2),
                     'created_at'      => $now,
                     'updated_at'      => $now,
                 ];

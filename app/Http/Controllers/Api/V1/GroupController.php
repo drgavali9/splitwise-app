@@ -37,7 +37,7 @@ class GroupController extends Controller
     {
         //        $this->authorize('view', $group);
 
-        return GroupResource::make($group);
+        return GroupResource::make($group->load('users'));
     }
 
     public function update(GroupRequest $request, Group $group)

@@ -34,6 +34,8 @@ class ExpenseController extends Controller
 
         $expense = $group->expenses()->create($request->validated());
 
+        Expense::addExpenses($expense, $request->split);
+
         return ExpenseResource::make($expense->loadMissing(['expenseSplits']));
     }
 

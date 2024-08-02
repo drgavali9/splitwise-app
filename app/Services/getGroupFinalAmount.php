@@ -6,7 +6,7 @@ use App\Models\ExpenseSplit;
 use App\Traits\Makeable;
 use Illuminate\Support\Facades\DB;
 
-class GetGroupFinalAmount
+class getGroupFinalAmount
 {
     use Makeable;
 

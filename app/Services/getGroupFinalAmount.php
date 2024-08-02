@@ -44,7 +44,7 @@ class getGroupFinalAmount
                 return [
                     'paid_by' => $paidUserId,
                     'received_by' => $receivedUserId,
-                    'amount'  => $transaction->total_amount,
+                    'amount' => $transaction->total_amount,
                 ];
             })
             ->toArray();
@@ -81,16 +81,16 @@ class getGroupFinalAmount
             $finalTransactions[] = [
                 'paid_by' => $maxDebtor,
                 'received_by' => $maxCreditor,
-                'amount'  => $amount,
+                'amount' => $amount,
             ];
 
             $balances[$maxCreditor] = round($balances[$maxCreditor] - $amount, 2);
             $balances[$maxDebtor] = round($balances[$maxDebtor] + $amount, 2);
 
-            if ($balances[$maxCreditor] == 0) {
+            if (data_get($balances, $maxCreditor) == 0) {
                 unset($balances[$maxCreditor]);
             }
-            if ($balances[$maxDebtor] == 0) {
+            if (data_get($balances, $maxDebtor) == 0) {
                 unset($balances[$maxDebtor]);
             }
         }
@@ -107,8 +107,10 @@ class getGroupFinalAmount
             $receivedBy = $transaction['received_by'];
             $amount = $transaction['amount'];
 
-            $memberWiseAmounts[$paidBy]['owes'][] = ['user' => $receivedBy, 'amount' => $amount];
-            $memberWiseAmounts[$receivedBy]['owe'][] = ['user' => $paidBy, 'amount' => $amount];
+            if ($amount > 0) {
+                $memberWiseAmounts[$paidBy]['owes'][] = ['user' => $receivedBy, 'amount' => $amount];
+                $memberWiseAmounts[$receivedBy]['owe'][] = ['user' => $paidBy, 'amount' => $amount];
+            }
         }
 
         return $memberWiseAmounts[$this->userId] ?? [];
